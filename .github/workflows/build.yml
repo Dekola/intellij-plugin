@@ -121,6 +121,10 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
 
+      # Run ktlintCheck
+      - name: Run ktlint
+        run: ./gradlew ktlintCheck
+
       # Run tests
       - name: Run Tests
         run: ./gradlew check

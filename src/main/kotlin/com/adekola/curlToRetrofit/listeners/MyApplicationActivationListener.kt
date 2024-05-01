@@ -1,4 +1,4 @@
-package com.github.dekola.intellijplugin.listeners
+package com.adekola.curlToRetrofit.listeners
 
 import com.intellij.openapi.application.ApplicationActivationListener
 import com.intellij.openapi.diagnostic.thisLogger

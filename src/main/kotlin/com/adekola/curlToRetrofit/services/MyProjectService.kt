@@ -1,9 +1,9 @@
-package com.github.dekola.intellijplugin.services
+package com.adekola.curlToRetrofit.services
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
-import com.github.dekola.intellijplugin.MyBundle
+import com.adekola.curlToRetrofit.MyBundle
 
 @Service(Service.Level.PROJECT)
 class MyProjectService(project: Project) {

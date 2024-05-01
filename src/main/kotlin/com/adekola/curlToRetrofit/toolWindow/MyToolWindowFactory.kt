@@ -1,4 +1,4 @@
-package com.github.dekola.intellijplugin.toolWindow
+package com.adekola.curlToRetrofit.toolWindow
 
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
@@ -8,8 +8,8 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.content.ContentFactory
-import com.github.dekola.intellijplugin.MyBundle
-import com.github.dekola.intellijplugin.services.MyProjectService
+import com.adekola.curlToRetrofit.MyBundle
+import com.adekola.curlToRetrofit.services.MyProjectService
 import javax.swing.JButton
 
 

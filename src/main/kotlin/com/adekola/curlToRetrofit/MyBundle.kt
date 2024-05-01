@@ -1,4 +1,4 @@
-package com.github.dekola.intellijplugin
+package com.adekola.curlToRetrofit
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls
