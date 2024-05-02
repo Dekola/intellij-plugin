@@ -35,11 +35,17 @@ class CurlInputDialog : DialogWrapper(true) {
             val validationResult = Validator.validateCurlCommand(textArea.text)
             if (validationResult.isValid) {
                 Messages.showMessageDialog(
-                    panel, "Success", "Validation Result", Messages.getInformationIcon()
+                    panel,
+                    "Success",
+                    "Validation Result",
+                    Messages.getInformationIcon(),
                 )
             } else {
                 Messages.showMessageDialog(
-                    panel, validationResult.errorMessage, "Validation Result", Messages.getInformationIcon()
+                    panel,
+                    validationResult.errorMessage,
+                    "Validation Result",
+                    Messages.getInformationIcon(),
                 )
             }
         }

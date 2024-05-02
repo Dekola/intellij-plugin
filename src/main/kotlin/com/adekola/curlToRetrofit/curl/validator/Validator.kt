@@ -1,68 +1,171 @@
 package com.adekola.curlToRetrofit.curl.validator
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import java.io.ByteArrayInputStream
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
+import javax.xml.parsers.DocumentBuilderFactory
+
 object Validator {
-
     fun validateCurlCommand(curlCommand: String): CurlValidatorResult {
+        val parts = parseCommandLine(curlCommand)
 
-        val processedCommand = curlCommand.trim().replace("\\", "")
-
-        val parts = processedCommand.split(Regex("\\s+"))
         if (parts.isEmpty() || parts[0] != "curl") {
             return CurlValidatorResult(false, "Error: Command must start with 'curl'.")
         }
 
         var hasUrl = false
-        var hasValidMethod = false
-        var errorMessage = ""
+        var hasRequestType = false
+        var hasDataType = false
+        var hasHeader = false
+
+        val supportedMethods = listOf("GET", "POST", "PUT", "DELETE", "PATCH", "HEAD")
 
         var i = 1
         while (i < parts.size) {
+            val part = parts[i]
             when {
-                parts[i].startsWith("'http://") || parts[i].startsWith("'https://") || parts[i].startsWith("http://") || parts[i].startsWith(
-                    "https://"
-                ) -> {
-                    val url = parts[i].trim('\'')
-                    if (hasUrl) {
-                        errorMessage += "Error: Multiple URLs found.\n"
-                    }
+                part.toBeIgnored() -> {
+                }
+
+                part.isHttpUrl() -> {
+                    if (hasUrl) return CurlValidatorResult(false, "Error: Multiple URLs found.")
                     hasUrl = true
                 }
 
-                (parts[i] == "--request" || parts[i] == "-X") && i + 1 < parts.size -> {
-                    val method = parts[i + 1]
-                    if (method !in listOf("GET", "POST", "PUT", "DELETE", "PATCH")) {
-                        errorMessage += "Error: Unsupported HTTP method '$method' specified.\n"
+                part.isRequestMethod() -> {
+                    if (i + 1 >= parts.size) {
+                        return CurlValidatorResult(false, "Error: No HTTP method specified.")
+                    } else if (parts[i + 1].uppercase() !in supportedMethods) {
+                        return CurlValidatorResult(false, "Error: Unsupported HTTP method '${parts[i + 1]}' specified.")
+                    }
+                    i++ // Skip next part as it's part of the current option
+
+                    if (hasRequestType) return CurlValidatorResult(false, "Error: Multiple Request Types found.")
+                    hasRequestType = true
+                }
+
+                part.isDataOption() -> {
+                    // Checks if there is no next part or if the next part is another option.
+                    if (i + 1 >= parts.size || parts[i + 1].startsWith("-")) {
+                        return CurlValidatorResult(false, "Error: No data provided for the data option.")
                     } else {
-                        hasValidMethod = true
+                        val dataContent = parts[i + 1]
+                        if (!(dataContent.isValidJson() || dataContent.isXmlData() || dataContent.isUrlEncoded())) {
+                            return CurlValidatorResult(false, "Error: Unsupported data format.")
+                        }
                     }
+
+                    if (hasDataType) return CurlValidatorResult(false, "Error: Multiple Data Types found.")
+                    hasDataType = true
                     i++
                 }
 
-                parts[i].startsWith("-d") || parts[i].startsWith("--data") -> {
-                    if (i + 1 >= parts.size || (!parts[i + 1].startsWith("'") && !parts[i + 1].startsWith("\""))) {
-                        errorMessage += "Error: No data provided for the data option.\n"
+                part.isHeaderOption() -> {
+                    if (i + 1 >= parts.size) {
+                        return CurlValidatorResult(false, "Error: No header found")
                     }
-                    i++
+                    if (!parts[i + 1].contains(":")) {
+                        return CurlValidatorResult(false, "Error: Invalid header format. Headers must include a colon.")
+                    }
+
+                    if (hasHeader) return CurlValidatorResult(false, "Error: Multiple Headers found.")
+                    hasHeader = true
+                    i++ // Skip next part as it's part of the current option
                 }
 
-                parts[i].startsWith("-H") || parts[i].startsWith("--header") -> {
-                    if (i + 1 >= parts.size || !parts[i + 1].contains(":")) {
-                        errorMessage += "Error: Invalid header format. Headers must include a colon.\n"
-                    }
-                    i++
+                else -> {
+                    return CurlValidatorResult(false, "Error: Unrecognized option '$part'.")
                 }
             }
             i++
         }
 
-        if (!hasUrl) {
-            errorMessage += "Error: No URL found.\n"
-        }
+        if (!hasUrl) return CurlValidatorResult(false, "Error: No URL found.")
 
-        if (!hasValidMethod) {
-            errorMessage += "Error: No valid HTTP method specified.\n"
-        }
+        return CurlValidatorResult(true)
+    }
 
-        return if (errorMessage.isEmpty()) CurlValidatorResult(true) else CurlValidatorResult(false, errorMessage)
+    private fun String.toBeIgnored() = arrayListOf("--location").contains(this)
+
+    private fun String.isHttpUrl() = this.lowercase().trim('\'').let { it.startsWith("http://") || it.startsWith("https://") }
+
+    private fun String.isRequestMethod() = (this == "--request" || this == "-X")
+
+    private fun String.isDataOption() = this == "-d" || this == "--data"
+
+    private fun String.isHeaderOption() = (this == "-H" || this == "--header")
+
+    private fun String.isValidJson(): Boolean {
+        if (!this.startsWith("{") && !this.startsWith("[")) {
+            return false
+        }
+        return try {
+            val mapper = ObjectMapper()
+            mapper.readTree(this)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun String.isXmlData(): Boolean {
+        return try {
+            val factory = DocumentBuilderFactory.newInstance()
+            val builder = factory.newDocumentBuilder()
+            builder.parse(ByteArrayInputStream(this.toByteArray())) // This will throw if the XML is bad
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun String.isUrlEncoded(): Boolean {
+        return try {
+            val decoded = URLDecoder.decode(this, StandardCharsets.UTF_8.name())
+            this.contains('=') &&
+                this.split('&').all { pair ->
+                    pair.contains('=') && pair.split('=').size == 2
+                }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun parseCommandLine(command: String): List<String> {
+        val tokens = mutableListOf<String>()
+        var currentToken = StringBuilder()
+        var inQuotes = false
+        var quoteChar = ' '
+
+        command.forEach { char ->
+            when {
+                char == ' ' && !inQuotes -> {
+                    if (currentToken.isNotEmpty()) {
+                        tokens.add(currentToken.toString())
+                        currentToken = StringBuilder()
+                    }
+                }
+
+                char == '"' || char == '\'' -> {
+                    if (inQuotes && char == quoteChar) {
+                        inQuotes = false
+                        tokens.add(currentToken.toString())
+                        currentToken = StringBuilder()
+                    } else if (!inQuotes) {
+                        inQuotes = true
+                        quoteChar = char
+                    } else {
+                        currentToken.append(char)
+                    }
+                }
+
+                else -> currentToken.append(char)
+            }
+        }
+        if (currentToken.isNotEmpty()) {
+            tokens.add(currentToken.toString())
+        }
+        return tokens
     }
 }
