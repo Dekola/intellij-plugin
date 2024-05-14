@@ -10,6 +10,7 @@
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.kotlin</depends>
 
     <change-notes><![CDATA[
       <ul>

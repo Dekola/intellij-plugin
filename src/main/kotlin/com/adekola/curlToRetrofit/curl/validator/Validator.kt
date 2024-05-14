@@ -131,7 +131,7 @@ object Validator {
     private fun isValidQueryParams(query: String): Boolean {
         query.split('&').all { param ->
             val index = param.indexOf('=')
-            if (index == -1 || index == 0) return false 
+            if (index == -1 || index == 0) return false
 
             val key = param.substring(0, index)
             val value = param.substring(index + 1)
