@@ -24,7 +24,6 @@ internal class ValidatorTest {
     @Test
     fun testValidateCurlCommand_invalidMethod() {
         val curlCommand = "curl --request PAST 'http://example.com'"
-        println("mytag ${Validator.validateCurlCommand(curlCommand).errorMessage}")
         assertEquals(
             "Error: Unsupported HTTP method 'PAST' specified.",
             Validator.validateCurlCommand(curlCommand).errorMessage,
@@ -126,7 +125,10 @@ internal class ValidatorTest {
     @Test
     fun testValidateCurlCommand_malformedUrl() {
         val curlCommand = "curl --request POST 'http//example.com' --data '{\"name\": \"Kola\"}'"
-        assertEquals("Error: Unrecognized option 'http//example.com'.", Validator.validateCurlCommand(curlCommand).errorMessage)
+        assertEquals(
+            "Error: Unrecognized option 'http//example.com'.",
+            Validator.validateCurlCommand(curlCommand).errorMessage
+        )
     }
 
     @Test
@@ -168,7 +170,10 @@ internal class ValidatorTest {
     @Test
     fun testValidateCurlCommand_invalidProtocol() {
         val curlCommand = "curl --request POST 'ftp://example.com' --data '{\"name\": \"Kola\"}'"
-        assertEquals("Error: Unrecognized option 'ftp://example.com'.", Validator.validateCurlCommand(curlCommand).errorMessage)
+        assertEquals(
+            "Error: Unrecognized option 'ftp://example.com'.",
+            Validator.validateCurlCommand(curlCommand).errorMessage
+        )
     }
 
     @Test
@@ -331,8 +336,6 @@ internal class ValidatorTest {
     @Test
     fun testValidateCurlCommand_dataOptionWithoutDash() {
         val curlCommand = "curl data 'data' --request POST 'http://example.com'"
-        println("mytag ${Validator.validateCurlCommand(curlCommand)}")
-
         assertEquals("Error: Unrecognized option 'data'.", Validator.validateCurlCommand(curlCommand).errorMessage)
     }
 
@@ -344,6 +347,98 @@ internal class ValidatorTest {
             Validator.validateCurlCommand(curlCommand).errorMessage,
         )
     }
+
+    @Test
+    fun testValidateCurlCommand_withSingleQueryParam() {
+        val curlCommand = "curl 'http://example.com?name=John'"
+        assertEquals(
+            null,
+            Validator.validateCurlCommand(curlCommand).errorMessage,
+        )
+    }
+
+    @Test
+    fun testValidateCurlCommand_withMultipleQueryParams() {
+        val curlCommand = "curl 'http://example.com?name=John&age=30'"
+        assertEquals(
+            null,
+            Validator.validateCurlCommand(curlCommand).errorMessage,
+        )
+    }
+
+    @Test
+    fun testValidateCurlCommand_withEncodedQueryParams() {
+        val curlCommand = "curl 'http://example.com?name=John%20Doe&age=30'"
+        assertEquals(
+            null,
+            Validator.validateCurlCommand(curlCommand).errorMessage,
+        )
+    }
+
+    @Test
+    fun testValidateCurlCommand_withEmptyQueryParamValue() {
+        val curlCommand = "curl 'http://example.com?name='"
+        assertEquals(
+            null,
+            Validator.validateCurlCommand(curlCommand).errorMessage,
+        )
+    }
+
+    @Test
+    fun testValidateCurlCommand_withNoQueryParamValue() {
+        val curlCommand = "curl 'http://example.com?name'"
+        assertEquals(
+            "Error: Invalid query parameter format.",
+            Validator.validateCurlCommand(curlCommand).errorMessage,
+        )
+    }
+
+    @Test
+    fun testValidateCurlCommand_withSpecialCharactersInQueryParam() {
+        val curlCommand = "curl 'http://example.com?name=John@Doe!&age=30'"
+        assertEquals(
+            "Error: Invalid query parameter format.",
+            Validator.validateCurlCommand(curlCommand).errorMessage,
+        )
+    }
+
+    @Test
+    fun testValidateCurlCommand_withQueryParamsIncludingHash() {
+        val curlCommand = "curl 'http://example.com?name=John#Doe&age=30'"
+        assertEquals(
+            "Error: Invalid query parameter format.",
+            Validator.validateCurlCommand(curlCommand).errorMessage,
+        )
+    }
+
+    @Test
+    fun testValidateCurlCommand_withUnsupportedEncodedQueryParam() {
+        val curlCommand = "curl 'http://example.com?name=John%ZZ'"
+        assertEquals(
+            "Error: Invalid query parameter format.",
+            Validator.validateCurlCommand(curlCommand).errorMessage,
+        )
+    }
+
+    // Help user to remove space in the future
+    @Test
+    fun testValidateCurlCommand_queryParamWithSpace() {
+        val curlCommand = "curl 'http://example.com?name=John Doe'"
+        assertEquals(
+            "Error: Invalid query parameter format.",
+            Validator.validateCurlCommand(curlCommand).errorMessage,
+        )
+    }
+
+    @Test
+    fun testValidateCurlCommand_withIllegalQueryParamKey() {
+        val curlCommand = "curl 'http://example.com?na/me=John'"
+        assertEquals(
+            "Error: Invalid query parameter format.",
+            Validator.validateCurlCommand(curlCommand).errorMessage,
+        )
+    }
+
 
 //    @Test
 //    fun testValidateCurlCommand_withCookies() {

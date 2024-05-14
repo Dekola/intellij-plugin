@@ -32,7 +32,8 @@ class CurlInputDialog : DialogWrapper(true) {
         panel.add(submitButton, BorderLayout.SOUTH)
 
         submitButton.addActionListener {
-            val validationResult = Validator.validateCurlCommand(textArea.text)
+            val curl = textArea.text
+            val validationResult = Validator.validateCurlCommand(curl)
             if (validationResult.isValid) {
                 Messages.showMessageDialog(
                     panel,
@@ -40,6 +41,8 @@ class CurlInputDialog : DialogWrapper(true) {
                     "Validation Result",
                     Messages.getInformationIcon(),
                 )
+
+                val curlCommand = Validator.groupCurlCommand(curl)
             } else {
                 Messages.showMessageDialog(
                     panel,
