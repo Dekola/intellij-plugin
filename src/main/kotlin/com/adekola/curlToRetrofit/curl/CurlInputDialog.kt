@@ -1,131 +1,183 @@
 package com.adekola.curlToRetrofit.curl
 
-import com.adekola.curlToRetrofit.curl.validator.CurlCommand
-import com.adekola.curlToRetrofit.curl.validator.Validator
-import com.intellij.openapi.actionSystem.AnAction
+import com.adekola.curlToRetrofit.curl.codeGenerator.CodeGenerator
+import com.adekola.curlToRetrofit.curl.codeGenerator.CodeGeneratorResult
+import com.adekola.curlToRetrofit.curl.validator.CurlValidator
+import com.adekola.curlToRetrofit.curl.validator.FileValidator
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.fileTypes.FileTypeManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.fileChooser.FileChooser
+import com.intellij.openapi.fileChooser.FileChooserDescriptor
+import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
-import com.intellij.psi.PsiFileFactory
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
-import java.awt.BorderLayout
+import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.util.ui.JBUI
+import java.awt.FlowLayout
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
+import javax.swing.Box
 import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
+import javax.swing.JScrollPane
 import javax.swing.JTextArea
 
-class TextUploaderAction : AnAction() {
-    override fun actionPerformed(event: AnActionEvent) {
-        CurlInputDialog { curlCommand ->
-            val project = event.project
-            if (project != null) {
-                createKotlinFile(project, curlCommand)
-            }
-        }.show()
+class CurlInputDialog(private val event: AnActionEvent) : DialogWrapper(true) {
 
-    }
+    private lateinit var panel: JPanel
+    private var codeGeneratorResult: CodeGeneratorResult? = null
 
-    private fun createKotlinFile(project: Project, curlCommand: CurlCommand) {
-        val fileName = "ApiService"
-
-//        val curlCommand = CurlCommand(
-//            method = "GET",
-//            url = "http://example.com/resource",
-//            headers = mapOf("Authorization" to "Bearer token"),
-//            data = null,
-//            queryParams = mapOf("search" to "query"),
-//            options = listOf("--verbose")
-//        )
-
-        val directory = PsiManager.getInstance(project)
-            .findDirectory(project.baseDir)
-        val fileContent = generateRetrofitInterface(curlCommand)
-
-        WriteCommandAction.runWriteCommandAction(project) {
-            val fileType = FileTypeManager.getInstance().getFileTypeByExtension("kt")
-            val psiFile = PsiFileFactory.getInstance(project).createFileFromText("$fileName.kt", fileType, fileContent)
-            directory!!.add(psiFile)
-        }
-    }
-
-    private fun generateRetrofitInterface(curlCommand: CurlCommand): String {
-        val methodName =
-            "performRequest"
-        val baseUrl = curlCommand.url?.substringBefore('?') ?: ""
-        val queryParams = curlCommand.queryParams?.entries?.joinToString("&") { "${it.key}=${it.value}" } ?: ""
-        val fullPath = if (queryParams.isNotEmpty()) "$baseUrl?$queryParams" else baseUrl
-
-        val httpMethodAnnotation = when (curlCommand.method?.toUpperCase()) {
-            "GET" -> "@GET"
-            "POST" -> "@POST"
-            "PUT" -> "@PUT"
-            "DELETE" -> "@DELETE"
-            "HEAD" -> "@HEAD"
-            else -> "@GET" // Default to GET if method is null or not recognized
-        }
-
-        val methodSignature = if (curlCommand.data != null && curlCommand.method in listOf("POST", "PUT", "DELETE")) {
-            "fun $methodName(@Body body: RequestBody): Call<Void>"
-        } else {
-            "fun $methodName(): Call<Void>"
-        }
-
-        // Generate the complete interface
-        return """
-        import retrofit2.Call
-        import retrofit2.http.$httpMethodAnnotation
-        import retrofit2.http.Body
-        import okhttp3.RequestBody
-
-        interface ApiService {
-            $httpMethodAnnotation("$fullPath")
-            $methodSignature
-        }
-    """.trimIndent()
-    }
-
-}
-
-class CurlInputDialog(private val curlCommandListener: (CurlCommand) -> Unit) : DialogWrapper(true) {
-    private var textArea: JTextArea = JTextArea(10, 50)
-    private var submitButton: JButton = JButton("Submit")
+    private val inputTextArea = JTextArea(5, 50)
+    private val resultTextArea = JTextArea(3, 50)
+    private val submitButton = JButton("Submit")
+    private val copyButton = JButton("Copy to Clipboard")
+    private val addToExistingButton = JButton("Add to existing class")
+    private val createClassButton = JButton("Create new class")
 
     init {
         init()
         title = "CURL Upload"
+        isResizable = true
     }
 
     override fun createCenterPanel(): JComponent {
-        val panel = JPanel(BorderLayout())
-        panel.add(textArea, BorderLayout.CENTER)
-        panel.add(submitButton, BorderLayout.SOUTH)
+        panel = JPanel(GridBagLayout())
+        val constraints = GridBagConstraints()
+
+        inputTextArea.text = "curl --request HEAD 'http://example.com'"
+
+        constraints.fill = GridBagConstraints.HORIZONTAL
+        constraints.gridx = 0
+        constraints.weightx = 1.0
+        constraints.insets = JBUI.insets(4)
+        constraints.anchor = GridBagConstraints.NORTH
+
+        constraints.gridy = 0
+        constraints.weighty = 0.0
+        panel.add(JScrollPane(inputTextArea), constraints)
+
+        constraints.gridy = 1
+        panel.add(submitButton, constraints)
+
+        constraints.gridy = 2
+
+        resultTextArea.isEditable = false
+        panel.add(JScrollPane(resultTextArea), constraints)
+
+        val buttonPanel = JPanel(FlowLayout(FlowLayout.RIGHT))
+        buttonPanel.add(copyButton)
+        buttonPanel.add(addToExistingButton)
+        buttonPanel.add(createClassButton)
+        constraints.gridy = 3
+        constraints.weighty = 0.0
+        panel.add(buttonPanel, constraints)
+
+        constraints.gridy = 4
+        constraints.weighty = 1.0
+        panel.add(Box.createVerticalGlue(), constraints)
+
+        addToExistingButton.addActionListener {
+            addCodeToExistingClass()
+        }
+
+        createClassButton.addActionListener {
+            createNewClass()
+        }
+
+        copyButton.addActionListener {
+            copyCode()
+        }
 
         submitButton.addActionListener {
-            val curl = textArea.text
-            val validationResult = Validator.validateCurlCommand(curl)
-            if (validationResult.isValid) {
-                Messages.showMessageDialog(
-                    panel,
-                    "Success",
-                    "Validation Result",
-                    Messages.getInformationIcon(),
-                )
+            generateCodeFromCurl()
+        }
 
-                val curlCommand = Validator.groupCurlCommand(curl)
-                curlCommandListener.invoke(curlCommand)
-            } else {
-                Messages.showMessageDialog(
-                    panel,
-                    validationResult.errorMessage,
-                    "Validation Result",
-                    Messages.getInformationIcon(),
-                )
+        return panel
+    }
+
+    private fun generateCodeFromCurl() {
+        val curl = inputTextArea.text
+        val validationResult = CurlValidator.validateCurlCommand(curl)
+        if (validationResult.isValid) {
+            processResult(curl)
+        } else {
+            showErrorDialog(validationResult.errorMessage)
+        }
+    }
+
+    private fun copyCode() {
+        val resultText = resultTextArea.text
+        if (resultText.isNotEmpty()) {
+            Toolkit.getDefaultToolkit().systemClipboard.setContents(StringSelection(resultText), null)
+        } else {
+            showErrorDialog("No text to copy")
+        }
+    }
+
+    private fun createNewClass() {
+        event.project?.let { projectEvent ->
+            codeGeneratorResult?.let { codeGeneratorResult ->
+                KotlinClassCreator.createKotlinFile(projectEvent, codeGeneratorResult)
             }
         }
-        return panel
+    }
+
+    private fun addCodeToExistingClass() {
+        val descriptor = FileChooserDescriptor(
+            true, false, false, false, false, false
+        ).withFileFilter { vf -> vf.extension in listOf("java", "kt") }.withRoots(event.project?.guessProjectDir())
+
+        FileChooser.chooseFile(descriptor, event.project, event.project?.guessProjectDir())?.let { file ->
+            val fileValidatorResult = FileValidator.isSelectedFileValid(file, event.project)
+            if (fileValidatorResult.isValid) {
+                appendBeforeLastCurlyBrace(file)
+            } else {
+                showErrorDialog(fileValidatorResult.errorMessage)
+            }
+        }
+    }
+
+    private fun appendBeforeLastCurlyBrace(file: VirtualFile) {
+        val resultText = resultTextArea.text
+        WriteCommandAction.runWriteCommandAction(event.project) {
+            val content = String(file.contentsToByteArray())
+            val lastCurlyIndex = content.lastIndexOf("}")
+
+            if (lastCurlyIndex != -1) {
+                val newContent =
+                    content.substring(0, lastCurlyIndex) + resultText + "\n" + content.substring(lastCurlyIndex)
+
+                file.setBinaryContent(newContent.toByteArray(Charsets.UTF_8))
+
+                // Format the newly changed part of the file
+                val psiFile = PsiManager.getInstance(event.project!!).findFile(file)
+                psiFile?.let {
+                    CodeStyleManager.getInstance(event.project!!)
+                        .reformatText(it, lastCurlyIndex, lastCurlyIndex + resultText.length)
+                }
+            }
+        }
+    }
+
+    private fun processResult(curl: String) {
+        val groupedCurlCommand = CurlValidator.groupCurlCommand(curl)
+        codeGeneratorResult = CodeGenerator.generateRetrofitInterface(groupedCurlCommand)
+
+        resultTextArea.text = codeGeneratorResult?.codeFunction
+    }
+
+    private fun showErrorDialog(errorMessage: String?) {
+        Messages.showMessageDialog(
+            panel,
+            errorMessage,
+            "Validation Result",
+            Messages.getInformationIcon(),
+        )
     }
 
 }

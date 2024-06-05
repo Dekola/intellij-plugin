@@ -6,8 +6,12 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import javax.xml.parsers.DocumentBuilderFactory
 
-object Validator {
+object CurlValidator {
     fun validateCurlCommand(curlCommand: String): CurlValidatorResult {
+
+        if (curlCommand.isEmpty())
+            return CurlValidatorResult(false, "Error: No CURL Command Found.")
+
         val parts = parseCommandLine(curlCommand)
 
         if (parts.isEmpty() || parts[0] != "curl") {

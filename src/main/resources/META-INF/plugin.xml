@@ -35,7 +35,7 @@
                description="Get CURL from User">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <action id="com.adekola.curlToRetrofit.myplugin.TextUploader"
-                    class="com.adekola.curlToRetrofit.curl.TextUploaderAction" text="Get CURL"
+                    class="com.adekola.curlToRetrofit.curl.CurlToRetrofitConverter" text="Get CURL"
                     description="Get CURL from User"/>
         </group>
 
