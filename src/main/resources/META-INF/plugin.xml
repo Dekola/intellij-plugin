@@ -4,13 +4,14 @@
     <name>CurlToRetrofit</name>
     <vendor email="Akano.Adekola@gmail.com" url="https://dekola.github.io/Akano_Adekola_Portfolio/">Adekola Akano
     </vendor>
+<!--    <icon>pluginIcon.png</icon>-->
 
     <description><![CDATA[
       Plugin to convert CURL to retrofit services interface
     ]]></description>
 
-    <depends>com.intellij.modules.platform</depends>
-    <depends>org.jetbrains.kotlin</depends>
+<!--    <depends>com.android.tools.idea</depends>-->
+    <depends>com.intellij.modules.lang</depends>
 
     <change-notes><![CDATA[
       <ul>
@@ -21,14 +22,6 @@
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.adekola.curlToRetrofit.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-    </extensions>
-
-    <applicationListeners>
-        <listener class="com.adekola.curlToRetrofit.listeners.MyApplicationActivationListener"
-                  topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
 
     <actions>
         <group id="com.adekola.curlToRetrofit.myplugin.Actions" text="Curl Uploader"

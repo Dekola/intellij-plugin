@@ -1,0 +1,16 @@
+<svg width="200" height="100" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- Styling for the CURL side -->
+    <text x="10" y="30" font-family="Arial" font-size="10" fill="blue">cURL</text>
+    <line x1="10" y1="35" x2="50" y2="35" stroke="blue" stroke-width="2" />
+
+    <!-- Text indicating transformation -->
+    <text x="75" y="50" font-family="Arial" font-size="12" fill="black">to</text>
+
+    <!-- Styling for the Retrofit side -->
+    <circle cx="150" cy="30" r="20" fill="green" />
+    <text x="140" y="35" font-family="Arial" font-size="10" fill="white">Retrofit2</text>
+
+    <!-- Curly braces around Retrofit text -->
+    <path d="M130 20 Q128 30 130 40" fill="transparent" stroke="white" stroke-width="2" />
+    <path d="M170 20 Q172 30 170 40" fill="transparent" stroke="white" stroke-width="2" />
+</svg>

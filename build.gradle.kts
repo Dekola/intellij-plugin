@@ -103,6 +103,9 @@ tasks {
             }
     }
 
+//    runIde {
+//        alternativeIdePath.set("/Applications/Android Studio.app")
+//    }
     // Configure UI tests plugin
     // Read more: https://github.com/JetBrains/intellij-ui-test-robot
     runIdeForUiTests {
