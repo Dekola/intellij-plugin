@@ -1,16 +1,12 @@
-<svg width="200" height="100" viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg">
-    <!-- Styling for the CURL side -->
-    <text x="10" y="30" font-family="Arial" font-size="10" fill="blue">cURL</text>
-    <line x1="10" y1="35" x2="50" y2="35" stroke="blue" stroke-width="2" />
-
-    <!-- Text indicating transformation -->
-    <text x="75" y="50" font-family="Arial" font-size="12" fill="black">to</text>
-
-    <!-- Styling for the Retrofit side -->
-    <circle cx="150" cy="30" r="20" fill="green" />
-    <text x="140" y="35" font-family="Arial" font-size="10" fill="white">Retrofit2</text>
-
-    <!-- Curly braces around Retrofit text -->
-    <path d="M130 20 Q128 30 130 40" fill="transparent" stroke="white" stroke-width="2" />
-    <path d="M170 20 Q172 30 170 40" fill="transparent" stroke="white" stroke-width="2" />
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_236_17)">
+<path d="M20 6C23.713 6 27.274 7.475 29.8995 10.1005C32.525 12.726 34 16.287 34 20C34 23.713 32.525 27.274 29.8995 29.8995C27.274 32.525 23.713 34 20 34C16.287 34 12.726 32.525 10.1005 29.8995C7.475 27.274 6 23.713 6 20C6 16.287 7.475 12.726 10.1005 10.1005C12.726 7.475 16.287 6 20 6Z" stroke="#3050F0" stroke-width="3"/>
+<path d="M20 33L15 23H25L20 33Z" fill="#3050F0"/>
+<path d="M20 26C23.3137 26 26 23.3137 26 20C26 16.6863 23.3137 14 20 14C16.6863 14 14 16.6863 14 20C14 23.3137 16.6863 26 20 26Z" fill="#30D080"/>
+</g>
+<defs>
+<clipPath id="clip0_236_17">
+<rect width="40" height="40" fill="white"/>
+</clipPath>
+</defs>
 </svg>

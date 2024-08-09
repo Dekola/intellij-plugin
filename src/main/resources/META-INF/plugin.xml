@@ -2,12 +2,13 @@
 <idea-plugin>
     <id>com.github.dekola.intellijplugin</id>
     <name>CurlToRetrofit</name>
-    <vendor email="Akano.Adekola@gmail.com" url="https://dekola.github.io/Akano_Adekola_Portfolio/">Adekola Akano
+    <vendor  email="Akano.Adekola@gmail.com" url="https://dekola.github.io/Akano_Adekola_Portfolio/" logo="pluginIcon.svg">
+        Adekola Akano
     </vendor>
-<!--    <icon>pluginIcon.png</icon>-->
+
 
     <description><![CDATA[
-      Plugin to convert CURL to retrofit services interface
+      Android Studio plugin for Converting CURL to Retrofit Code in Java and Kotlin.
     ]]></description>
 
 <!--    <depends>com.android.tools.idea</depends>-->
@@ -28,7 +29,7 @@
                description="Get CURL from User">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <action id="com.adekola.curlToRetrofit.myplugin.TextUploader"
-                    class="com.adekola.curlToRetrofit.curl.CurlToRetrofitConverter" text="Get CURL"
+                    class="com.adekola.curlToRetrofit.curl.CurlToRetrofitConverter" text="CURL To Retrofit"
                     description="Get CURL from User"/>
         </group>
 
