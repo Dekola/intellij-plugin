@@ -11,8 +11,11 @@
       Android Studio plugin for Converting CURL to Retrofit Code in Java and Kotlin.
     ]]></description>
 
-<!--    <depends>com.android.tools.idea</depends>-->
     <depends>com.intellij.modules.lang</depends>
+<!--    <depends>com.android.tools.idea</depends>-->
+
+<!--    <depends>com.intellij.modules.platform</depends>-->
+    <depends>org.jetbrains.android</depends>
 
     <change-notes><![CDATA[
       <ul>

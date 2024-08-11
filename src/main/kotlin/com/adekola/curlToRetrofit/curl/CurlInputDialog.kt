@@ -217,17 +217,6 @@ class CurlInputDialog(private val event: AnActionEvent) : DialogWrapper(true) {
         }
     }
 
-    private fun getClassName(projectEvent: Project): String? {
-        val dialog = ClassNameDialog(projectEvent)
-        dialog.show()
-
-        if (dialog.exitCode == OK_EXIT_CODE) {
-            val className = dialog.className
-            return className;
-        } else {
-            return null;
-        }
-    }
 
     private fun chooseFolder(project: Project): PsiDirectory? {
         val descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor()

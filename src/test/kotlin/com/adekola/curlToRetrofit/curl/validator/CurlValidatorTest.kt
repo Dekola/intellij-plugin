@@ -9,7 +9,7 @@ internal class CurlValidatorTest {
     @Test
     fun testValidateCurlCommand_correctCommand() {
         val curlCommand =
-            "curl --location --request POST 'http://localhost:8080/students/saveStudent/232342' --header 'Content-Type: application/json' --data '{\"name\": \"Kola\",\"age\": 50}'"
+            "curl --location --request POST 'http://localhost:8080/students/saveStudent/232342' --header 'Content-Type: application/json' --data '{\"name\": \"Kay\",\"age\": 50}'"
 
         assertNull(CurlValidator.validateCurlCommand(curlCommand).errorMessage)
         assertTrue(CurlValidator.validateCurlCommand(curlCommand).isValid)
@@ -17,7 +17,7 @@ internal class CurlValidatorTest {
 
     @Test
     fun testValidateCurlCommand_missingUrl() {
-        val curlCommand = "curl --request POST --data '{\"name\": \"Kola\",\"age\": 50}'"
+        val curlCommand = "curl --request POST --data '{\"name\": \"Kay\",\"age\": 50}'"
         assertEquals("Error: No URL found.", CurlValidator.validateCurlCommand(curlCommand).errorMessage)
     }
 
@@ -79,7 +79,7 @@ internal class CurlValidatorTest {
     @Test
     fun testValidateCurlCommand_multipleUrls() {
         val curlCommand =
-            "curl --request POST 'http://example.com' 'http://example2.com' --data '{\"name\": \"Kola\",\"age\": 50}'"
+            "curl --request POST 'http://example.com' 'http://example2.com' --data '{\"name\": \"Kay\",\"age\": 50}'"
         assertEquals("Error: Multiple URLs found.", CurlValidator.validateCurlCommand(curlCommand).errorMessage)
     }
 
@@ -110,7 +110,7 @@ internal class CurlValidatorTest {
 
     @Test
     fun testValidateCurlCommand_extraSpaces() {
-        val curlCommand = "curl  --request  POST  'http://example.com'  --data  '{\"name\": \"Kola\"}'"
+        val curlCommand = "curl  --request  POST  'http://example.com'  --data  '{\"name\": \"Kay\"}'"
         assert(CurlValidator.validateCurlCommand(curlCommand).errorMessage.isNullOrEmpty())
         assertTrue(CurlValidator.validateCurlCommand(curlCommand).isValid)
     }
@@ -124,7 +124,7 @@ internal class CurlValidatorTest {
     // Provide more specific error message
     @Test
     fun testValidateCurlCommand_malformedUrl() {
-        val curlCommand = "curl --request POST 'http//example.com' --data '{\"name\": \"Kola\"}'"
+        val curlCommand = "curl --request POST 'http//example.com' --data '{\"name\": \"Kay\"}'"
         assertEquals(
             "Error: Unrecognized option 'http//example.com'.",
             CurlValidator.validateCurlCommand(curlCommand).errorMessage
@@ -169,7 +169,7 @@ internal class CurlValidatorTest {
 
     @Test
     fun testValidateCurlCommand_invalidProtocol() {
-        val curlCommand = "curl --request POST 'ftp://example.com' --data '{\"name\": \"Kola\"}'"
+        val curlCommand = "curl --request POST 'ftp://example.com' --data '{\"name\": \"Kay\"}'"
         assertEquals(
             "Error: Unrecognized option 'ftp://example.com'.",
             CurlValidator.validateCurlCommand(curlCommand).errorMessage
@@ -184,14 +184,14 @@ internal class CurlValidatorTest {
 
     @Test
     fun testValidateCurlCommand_singleQuotesAroundUrl() {
-        val curlCommand = "curl --request POST 'http://example.com' --data '{\"name\": \"Kola\"}'"
+        val curlCommand = "curl --request POST 'http://example.com' --data '{\"name\": \"Kay\"}'"
         assertTrue(CurlValidator.validateCurlCommand(curlCommand).errorMessage.isNullOrEmpty())
     }
 
     // Remove extra dash
     @Test
     fun testValidateCurlCommand_extraDashInOption() {
-        val curlCommand = "curl ---request POST 'http://example.com' --data '{\"name\": \"Kola\"}'"
+        val curlCommand = "curl ---request POST 'http://example.com' --data '{\"name\": \"Kay\"}'"
         assertEquals(
             "Error: Unrecognized option '---request'.",
             CurlValidator.validateCurlCommand(curlCommand).errorMessage,
@@ -200,13 +200,13 @@ internal class CurlValidatorTest {
 
     @Test
     fun testValidateCurlCommand_queryParamsInUrl() {
-        val curlCommand = "curl --request POST 'http://example.com?param=value' --data '{\"name\": \"Kola\"}'"
+        val curlCommand = "curl --request POST 'http://example.com?param=value' --data '{\"name\": \"Kay\"}'"
         assertTrue(CurlValidator.validateCurlCommand(curlCommand).errorMessage.isNullOrEmpty())
     }
 
     @Test
     fun testValidateCurlCommand_httpsUrlWithPort() {
-        val curlCommand = "curl --request POST 'https://example.com:8080' --data '{\"name\": \"Kola\"}'"
+        val curlCommand = "curl --request POST 'https://example.com:8080' --data '{\"name\": \"Kay\"}'"
         assertTrue(CurlValidator.validateCurlCommand(curlCommand).errorMessage.isNullOrEmpty())
     }
 
@@ -218,7 +218,7 @@ internal class CurlValidatorTest {
 
     @Test
     fun testValidateCurlCommand_unnecessaryEscapeInUrl() {
-        val curlCommand = "curl --request POST 'http:\\/\\/example.com' --data '{\"name\": \"Kola\"}'"
+        val curlCommand = "curl --request POST 'http:\\/\\/example.com' --data '{\"name\": \"Kay\"}'"
         assertEquals(
             "Error: Unrecognized option 'http:\\/\\/example.com'.",
             CurlValidator.validateCurlCommand(curlCommand).errorMessage,
@@ -319,16 +319,16 @@ internal class CurlValidatorTest {
 
     @Test
     fun testValidateCurlCommand_wrongOrderOfOptions() {
-        val curlCommand = "curl --data '{\"name\": \"Kola\",\"age\": 50}' --request POST 'http://example.com'"
+        val curlCommand = "curl --data '{\"name\": \"Kay\",\"age\": 50}' --request POST 'http://example.com'"
         assertEquals(null, CurlValidator.validateCurlCommand(curlCommand).errorMessage)
     }
 
     // Add feature to correct little mistakes like this in the input
     @Test
     fun testValidateCurlCommand_noSpaceBetweenOptions() {
-        val curlCommand = "curl --data'{\"name\": \"Kola\",\"age\": 50}' --request POST 'http://example.com'"
+        val curlCommand = "curl --data'{\"name\": \"Kay\",\"age\": 50}' --request POST 'http://example.com'"
         assertEquals(
-            "Error: Unrecognized option '--data{\"name\": \"Kola\",\"age\": 50}'.",
+            "Error: Unrecognized option '--data{\"name\": \"Kay\",\"age\": 50}'.",
             CurlValidator.validateCurlCommand(curlCommand).errorMessage,
         )
     }
