@@ -6,6 +6,7 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import javax.xml.parsers.DocumentBuilderFactory
 
+@OptIn(ExperimentalStdlibApi::class)
 object CurlValidator {
     fun validateCurlCommand(curlCommand: String): CurlValidatorResult {
 
