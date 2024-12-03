@@ -24,7 +24,7 @@ object CodeGenerator {
             "PUT" -> "@PUT"
             "DELETE" -> "@DELETE"
             "HEAD" -> "@HEAD"
-            else -> "@GET" // Default to GET if method is null or not recognized
+            else -> "@GET"
         }
 
         val methodSignature =
@@ -78,9 +78,10 @@ object CodeGenerator {
             httpMethodAnnotation =
                 when (curlCommand.method.uppercase(Locale.getDefault())) {
                     "POST" -> "POST"
-                    "PUT" -> "PUT"
-                    "DELETE" -> "DELETE"
                     "HEAD" -> "HEAD"
+                    "DELETE" -> "DELETE"
+                    "PUT" -> "PUT"
+                    "GET" -> "GET"
                     else -> "GET"
                 }
         }

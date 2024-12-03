@@ -6,8 +6,6 @@
 
 <!-- Plugin description -->
 
-Android Studio plugin for Converting CURL to Retrofit Code in Java and Kotlin.
-
 Getting Started:
 
 Tools - CURL To Retrofit

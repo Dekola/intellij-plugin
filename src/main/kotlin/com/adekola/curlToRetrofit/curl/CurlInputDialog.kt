@@ -143,7 +143,6 @@ class CurlInputDialog(private val event: AnActionEvent) : DialogWrapper(true) {
             try {
                 createNewClass(getSelectedLanguage())
             } catch (e: Exception) {
-//            IncorrectOperationException
                 showErrorDialog(e.message, title = "Error Creating Class")
             }
         }
@@ -223,7 +222,7 @@ class CurlInputDialog(private val event: AnActionEvent) : DialogWrapper(true) {
         descriptor.title = "Select Folder"
         descriptor.description = "Choose a folder:"
 
-        val folder = FileChooser.chooseFile(descriptor, project, null)
+        val folder:VirtualFile? = FileChooser.chooseFile(descriptor, project, null)
 
         return if (folder != null && folder.isDirectory) {
             PsiManager.getInstance(project).findDirectory(folder)
@@ -285,7 +284,6 @@ class CurlInputDialog(private val event: AnActionEvent) : DialogWrapper(true) {
 
     private fun processResult(curl: String, selectedLanguage: LanguageSelection) {
         val groupedCurlCommand = CurlValidator.groupCurlCommand(curl)
-
 
         codeGeneratorResult =
             if (selectedLanguage == LanguageSelection.JAVA) CodeGenerator.generateJavaRetrofitInterface(
