@@ -41,7 +41,8 @@ intellij {
     type = properties("platformType")
 
     // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
-    plugins = properties("platformPlugins").map { it.split(',').map(String::trim).filter(String::isNotEmpty) }
+//    plugins = properties("platformPlugins").map { it.split(',').map(String::trim).filter(String::isNotEmpty) }
+    plugins = listOf("android")
 }
 
 tasks.test {
@@ -103,6 +104,9 @@ tasks {
             }
     }
 
+//    runIde {
+//        alternativeIdePath.set("/Applications/Android Studio.app")
+//    }
     // Configure UI tests plugin
     // Read more: https://github.com/JetBrains/intellij-ui-test-robot
     runIdeForUiTests {

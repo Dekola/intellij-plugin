@@ -2,15 +2,20 @@
 <idea-plugin>
     <id>com.github.dekola.intellijplugin</id>
     <name>CurlToRetrofit</name>
-    <vendor email="Akano.Adekola@gmail.com" url="https://dekola.github.io/Akano_Adekola_Portfolio/">Adekola Akano
+    <vendor  email="Akano.Adekola@gmail.com" url="https://dekola.github.io/Akano_Adekola_Portfolio/" logo="pluginIcon.svg">
+        Adekola Akano
     </vendor>
 
+
     <description><![CDATA[
-      Plugin to convert CURL to retrofit services interface
+      Android Studio plugin for Converting CURL to Retrofit Code in Java and Kotlin.
     ]]></description>
 
-    <depends>com.intellij.modules.platform</depends>
-    <depends>org.jetbrains.kotlin</depends>
+    <depends>com.intellij.modules.lang</depends>
+<!--    <depends>com.android.tools.idea</depends>-->
+
+<!--    <depends>com.intellij.modules.platform</depends>-->
+    <depends>org.jetbrains.android</depends>
 
     <change-notes><![CDATA[
       <ul>
@@ -21,21 +26,13 @@
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.adekola.curlToRetrofit.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
-    </extensions>
-
-    <applicationListeners>
-        <listener class="com.adekola.curlToRetrofit.listeners.MyApplicationActivationListener"
-                  topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
 
     <actions>
         <group id="com.adekola.curlToRetrofit.myplugin.Actions" text="Curl Uploader"
                description="Get CURL from User">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <action id="com.adekola.curlToRetrofit.myplugin.TextUploader"
-                    class="com.adekola.curlToRetrofit.curl.CurlToRetrofitConverter" text="Get CURL"
+                    class="com.adekola.curlToRetrofit.curl.CurlToRetrofitConverter" text="CURL To Retrofit"
                     description="Get CURL from User"/>
         </group>
 
