@@ -52,6 +52,7 @@ class CurlInputDialog(private val event: AnActionEvent) : DialogWrapper(true) {
     private val methodNameText: JLabel = JLabel()
     private val methodNameTextField: JTextField = JTextField()
 
+    private val flutterRadioButton: JRadioButton = JRadioButton("Flutter")
     private val javaRadioButton: JRadioButton = JRadioButton("Java")
     private val kotlinRadioButton: JRadioButton = JRadioButton("Kotlin", true)
     private val languageGroup: ButtonGroup = ButtonGroup()
@@ -112,6 +113,7 @@ class CurlInputDialog(private val event: AnActionEvent) : DialogWrapper(true) {
 
         languageGroup.add(kotlinRadioButton);
         languageGroup.add(javaRadioButton);
+        languageGroup.add(flutterRadioButton);
 
         constraints.gridy += 1
         panel.add(javaRadioButton, constraints)
@@ -169,8 +171,10 @@ class CurlInputDialog(private val event: AnActionEvent) : DialogWrapper(true) {
     fun getSelectedLanguage(): LanguageSelection {
         return if (javaRadioButton.isSelected) {
             LanguageSelection.JAVA
-        } else {
+        } else if (kotlinRadioButton.isSelected) {
             LanguageSelection.KOTLIN
+        } else {
+            LanguageSelection.FLUTTER
         }
     }
 
@@ -222,7 +226,7 @@ class CurlInputDialog(private val event: AnActionEvent) : DialogWrapper(true) {
         descriptor.title = "Select Folder"
         descriptor.description = "Choose a folder:"
 
-        val folder:VirtualFile? = FileChooser.chooseFile(descriptor, project, null)
+        val folder: VirtualFile? = FileChooser.chooseFile(descriptor, project, null)
 
         return if (folder != null && folder.isDirectory) {
             PsiManager.getInstance(project).findDirectory(folder)
@@ -253,7 +257,13 @@ class CurlInputDialog(private val event: AnActionEvent) : DialogWrapper(true) {
         val curl = inputTextArea.text
 
         val extension =
-            if (file.extension == "kt") LanguageSelection.KOTLIN else LanguageSelection.JAVA
+            if (file.extension == "kt")
+                LanguageSelection.KOTLIN
+            else if (file.extension == "java")
+                LanguageSelection.JAVA
+            else 
+                LanguageSelection.FLUTTER
+
         getCode(curl, extension)?.let { resultText ->
 
             WriteCommandAction.runWriteCommandAction(event.project) {
@@ -303,11 +313,17 @@ class CurlInputDialog(private val event: AnActionEvent) : DialogWrapper(true) {
         val groupedCurlCommand = CurlValidator.groupCurlCommand(curl)
 
         codeGeneratorResult =
-            if (selectedLanguage == LanguageSelection.JAVA) CodeGenerator.generateJavaRetrofitInterface(
+            if (selectedLanguage == LanguageSelection.JAVA)
+                CodeGenerator.generateJavaRetrofitInterface(
                 groupedCurlCommand,
                 methodName = methodNameTextField.text,
                 className = classNameTextField.text
-            ) else CodeGenerator.generateKotlinRetrofitInterface(
+            ) else if (selectedLanguage == LanguageSelection.KOTLIN)
+                CodeGenerator.generateKotlinRetrofitInterface(
+                groupedCurlCommand,
+                methodName = methodNameTextField.text,
+                className = classNameTextField.text
+            )else CodeGenerator.generateKotlinRetrofitInterface(
                 groupedCurlCommand,
                 methodName = methodNameTextField.text,
                 className = classNameTextField.text

@@ -7,6 +7,13 @@ import java.util.stream.Collectors
 
 object CodeGenerator {
 
+    fun generateFlutterRetrofitInterface(
+        curlCommand: CurlCommand,
+        methodName: String = "performRequest",
+        className: String = "ApiService"
+    ): CodeGeneratorResult {
+        return CodeGeneratorResult(fullCode = "", codeFunction = "")
+    }
     fun generateKotlinRetrofitInterface(
         curlCommand: CurlCommand,
         methodName: String = "performRequest",
